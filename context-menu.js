@@ -28,6 +28,9 @@ window.addEventListener('load', function() {
   console.log(targetElement);
 
   targetElement.addEventListener('click', openContextMenu, false);
+  var contextMenuTemplateElement = document.createElement('div');
 
-  
+  function openContextMenu(event) {
+    console.log(event.x, event.y, document.body.clientHeight, document.body.clientWidth);
+  }
 });
