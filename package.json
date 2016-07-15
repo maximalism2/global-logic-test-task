@@ -1,0 +1,15 @@
+{
+  "name": "globallogic-test-task",
+  "version": "1.0.0",
+  "description": "Demo: http://necinc.github.io/global-logick-test-task",
+  "main": "context-menu.js",
+  "dependencies": {},
+  "devDependencies": {
+    "node-static": "^0.7.7"
+  },
+  "scripts": {
+    "start": "static ."
+  },
+  "author": "Maxym Vyznyuk",
+  "license": "ISC"
+}
