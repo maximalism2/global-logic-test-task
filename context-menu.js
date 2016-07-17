@@ -1,12 +1,7 @@
 function ContextMenu() {
-  this.contextMenuProps = { // State for main element of context menu
-    x: 0,
-    y: 0,
-    open: false
-  }
-
-  this.submenuProps = {
-    opened: []
+  this.state = {
+    opened: [],
+    active: []
   }
 
   this.mouseIsOn = ''; // Field includes id of item, which has pointer abose itself
@@ -126,21 +121,26 @@ ContextMenu.prototype.createNode = function() {
       itemElement.className = 'context-menu-item';
       itemElement.id = generateId();
       
-      itemElement.addEventListener('click', window[item.onClick], false);
       itemElement.addEventListener('mouseenter', function(event) {
         self.mouseEnterHandler(itemElement, item, level);
       }, false);
 
+      if (!item.disabled && !item.submenu) {
+        itemElement.addEventListener('click', function(event) {
+          self.hide();
+          self.resetCondition();
+          window[item.onClick](event);
+        }, false);
+      }
+
       if (item.disabled) {
         itemElement.className += ' is-disabled';
-        itemElement.removeEventListener('click', window[item.onClick]);
       }
 
       if (item.submenu && item.submenu.length) {
         var submenuWrapper = document.createElement('div');
         submenuWrapper.className = 'context-menu-item has-sub-items';
         itemElement.className = 'submenu-label';
-        itemElement.removeEventListener('click', window[item.onClick]);
         submenuWrapper.appendChild(itemElement);
 
         insertMenuItems.call(submenuWrapper, item.submenu, true, level + 1);
@@ -157,10 +157,12 @@ ContextMenu.prototype.createNode = function() {
 ContextMenu.prototype.hide = function(target) {
   document.body.removeChild(document.getElementById('contextMenu'));
   document.body.removeChild(document.getElementById('contextMenuOverlay'));
+  window.removeEventListener('keydown', this.keyDownHandler);
 }
 
 ContextMenu.prototype.show = function(event) {
   event.preventDefault();
+  var self = this;
 
   console.table({
     userEvent: {
@@ -178,21 +180,46 @@ ContextMenu.prototype.show = function(event) {
 
   document.body.appendChild(this.overlayNode);
   document.body.appendChild(this.contextMenuNode);
+  window.addEventListener('keydown', function(event) {
+    self.keyDownHandler.call(self, event);
+  }, false);
 }
 
 ContextMenu.prototype.openSubmenuById = function(id, depthLevel) {
-  var currentOpenedSubmenus = this.submenuProps.opened;
+  var currentOpenedSubmenus = this.state.opened;
   var newOpenedSubmenus = currentOpenedSubmenus.splice(0, depthLevel);
   newOpenedSubmenus.push(id);
-  this.submenuProps.opened = newOpenedSubmenus; // Save new list of opened submenus
+  this.state.opened = newOpenedSubmenus; // Save new list of opened submenus
   this.redraw(); // Redraw menu
-  console.log(menu.submenuProps.opened);
+}
+
+ContextMenu.prototype.keyDownHandler = function(event) {
+  console.log(event.which);
+  switch (event.which) {
+    case 37: { // Left arrow
+      break;
+    }
+    case 38: { // Up arrow
+      break;
+    }
+    case 39: { // Right arrow
+      break;
+    }
+    case 40: { // Down arrow
+      this.state.active;
+      console.log(this.contextMenuNode.children);
+      [].forEach.call(this.contextMenuNode.children, function(item) {
+        console.log(item.className);
+      });
+      break;
+    }
+  }
 }
 
 ContextMenu.prototype.closeSubmenusFromLevel = function(level) {
-  var currentOpenedSubmenus = this.submenuProps.opened;
+  var currentOpenedSubmenus = this.state.opened;
   var newOpenedSubmenus = currentOpenedSubmenus.slice(0, level);
-  this.submenuProps.opened = newOpenedSubmenus;
+  this.state.opened = newOpenedSubmenus;
   this.redraw();
 }
 
@@ -208,7 +235,7 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
     window[node.id] = setTimeout(function() {
       console.log(self.mouseIsOn, node.id);
       if (self.mouseIsOn === node.id) {
-        if (self.submenuProps.opened.indexOf(node.id) === -1) {
+        if (self.state.opened.indexOf(node.id) === -1) {
           self.resetCondition(itemDepthLevel);
           self.openSubmenuById(node.id, itemDepthLevel);
         }
@@ -223,7 +250,7 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
 
 ContextMenu.prototype.redraw = function() {
   this.resetCondition();
-  var openedSubmenus = this.submenuProps.opened;
+  var openedSubmenus = this.state.opened;
   openedSubmenus.forEach(function(id) {
     var submenuLabel = document.getElementById(id);
     submenuLabel.className = "submenu-label submenu-showed";

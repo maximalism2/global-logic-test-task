@@ -27,7 +27,7 @@
         "title": "sub sub item 2",
         "onClick": "clickHandler",
         "disabled": false,
-        "submenu": []
+        "submenu": false
       }, {
         "title": "sub sub item 3",
         "onClick": "clickHandler",
@@ -67,7 +67,7 @@
         "title": "sub sub item 2",
         "onClick": "clickHandler",
         "disabled": false,
-        "submenu": []
+        "submenu": false
       }, {
         "title": "sub sub item 3",
         "onClick": "clickHandler",

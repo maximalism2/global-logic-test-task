@@ -54,6 +54,7 @@
   width: 0;
   border: 4px solid transparent;
   border-left-color: currentColor;
+  cursor: pointer;
 }
 
 .context-menu-overlay {
