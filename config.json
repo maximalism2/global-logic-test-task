@@ -1,4 +1,84 @@
 {
   "target": "root",
-  "items": []
+  "items": [{
+    "title": "item 1",
+    "onClick": "clickHandler",
+    "disabled": false,
+    "submenu": false
+  }, {
+    "title": "item 2",
+    "onClick": "clickHandler",
+    "disabled": false,
+    "submenu": [{
+      "title": "sub item 1",
+      "onClick": "clickHandler",
+      "disabled": false,
+      "submenu": false
+    }, {
+      "title": "sub item 2",
+      "onClick": "clickHandler",
+      "disabled": false,
+      "submenu": [{
+        "title": "sub sub item 1",
+        "onClick": "clickHandler",
+        "disabled": false,
+        "submenu": false
+      }, {
+        "title": "sub sub item 2",
+        "onClick": "clickHandler",
+        "disabled": false,
+        "submenu": []
+      }, {
+        "title": "sub sub item 3",
+        "onClick": "clickHandler",
+        "disabled": true,
+        "submenu": false
+      }]
+    }, {
+      "title": "sub item 3",
+      "onClick": "clickHandler",
+      "disabled": true,
+      "submenu": false
+    }]
+  }, {
+    "title": "item 3",
+    "onClick": "clickHandler",
+    "disabled": true,
+    "submenu": false
+  }, {
+    "title": "item 2",
+    "onClick": "clickHandler",
+    "disabled": false,
+    "submenu": [{
+      "title": "sub item 1",
+      "onClick": "clickHandler",
+      "disabled": false,
+      "submenu": false
+    }, {
+      "title": "sub item 2",
+      "onClick": "clickHandler",
+      "disabled": false,
+      "submenu": [{
+        "title": "sub sub item 1",
+        "onClick": "clickHandler",
+        "disabled": false,
+        "submenu": false
+      }, {
+        "title": "sub sub item 2",
+        "onClick": "clickHandler",
+        "disabled": false,
+        "submenu": []
+      }, {
+        "title": "sub sub item 3",
+        "onClick": "clickHandler",
+        "disabled": true,
+        "submenu": false
+      }]
+    }, {
+      "title": "sub item 3",
+      "onClick": "clickHandler",
+      "disabled": true,
+      "submenu": false
+    }]
+  }]
 }

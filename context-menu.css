@@ -10,10 +10,22 @@
 
 .context-menu-item {
   height: 20px;
-  padding: 2px 1rem;
+}
+
+.context-menu-item .label {
+  display: block;
+  padding: 1px 1rem;
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.submenu{
+  display: none;
+}
+
+.submenu-label.submenu-showed + .submenu {
+  display: inline-block;
 }
 
 .context-menu-item:hover {
@@ -29,21 +41,35 @@
   background: transparent;
 }
 
-.context-menu-item.submenu-hidden .submenu{
-  display: none;
-}
-
 .context-menu-item.has-sub-items {
   position: relative;
 }
 .context-menu-item.has-sub-items::after {
   content: '';
   position: absolute;
-  top: 7px;
+  top: 6px;
   left: auto;
   right: .5rem;
   height: 0;
   width: 0;
   border: 4px solid transparent;
   border-left-color: currentColor;
+}
+
+.context-menu-overlay {
+  background: rgba(50, 200, 100, .3);
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.submenu {
+  background: white;
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 200px;
+  box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
 }
