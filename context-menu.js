@@ -6,10 +6,10 @@ function ContextMenu() {
   }
 
   this.submenuProps = {
-    list: [],
     opened: []
   }
 
+  this.mouseIsOn = ''; // Field includes id of item, which has pointer abose itself
   this.menuTemplate = {}; // JSON config of menu
   this.targetElement = {}; // DOM Node of target element
   this.contextMenuNode = null; // Created element node with context menu
@@ -42,16 +42,15 @@ ContextMenu.prototype.resetCondition = function(fromLevel) {
     fromLevel = 0;
   }
 
+  console.log('resetCondition called with index', fromLevel);
+
   restoreDefaultClassNames(this.contextMenuNode.children, fromLevel, 0);
 
   function restoreDefaultClassNames(nodeList, fromLevel, currentLevel) {
-    console.log(fromLevel, currentLevel);
     [].forEach.call(nodeList, function(item) {
       // If it is an item of context menu and it has submenu
-      console.log(item.className);
       if (item.className.indexOf('context-menu-item') !== -1 && item.className.indexOf('has-sub-items') !== -1) {
         // And it is that level of depth which we need
-        console.info('found!');
         if (fromLevel <= currentLevel) {
           [].forEach.call(item.children, function(child) {
             if (child.className.indexOf('submenu-label') !== -1) {
@@ -92,7 +91,14 @@ ContextMenu.prototype.createNode = function() {
 
   overlay.addEventListener('click', function(event) {
     hide.call(self, hide);
+    self.resetCondition.call(self);
   }, false);
+
+  overlay.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+    self.resetCondition.call(self);
+    hide.call(self, hide);
+  }, false)
 
   this.overlayNode = overlay;
 
@@ -174,21 +180,54 @@ ContextMenu.prototype.show = function(event) {
   document.body.appendChild(this.contextMenuNode);
 }
 
-ContextMenu.prototype.mouseEnterHandler = function(node, item, itemPepthLevel) {
+ContextMenu.prototype.openSubmenuById = function(id, depthLevel) {
+  var currentOpenedSubmenus = this.submenuProps.opened;
+  var newOpenedSubmenus = currentOpenedSubmenus.splice(0, depthLevel);
+  newOpenedSubmenus.push(id);
+  this.submenuProps.opened = newOpenedSubmenus; // Save new list of opened submenus
+  this.redraw(); // Redraw menu
+  console.log(menu.submenuProps.opened);
+}
+
+ContextMenu.prototype.closeSubmenusFromLevel = function(level) {
+  var currentOpenedSubmenus = this.submenuProps.opened;
+  var newOpenedSubmenus = currentOpenedSubmenus.slice(0, level);
+  this.submenuProps.opened = newOpenedSubmenus;
+  this.redraw();
+}
+
+ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
   // If item is not disabled and has submenu - waiting some time and show it
+  var self = this;
   var delay = this.transitoinDelay;
   
-  this.resetCondition(itemPepthLevel);
+  this.mouseIsOn = node.id;
+  console.log('currentOpenedSubmenus', node.id);
 
   if (!item.disabled && item.submenu && item.submenu.length) {
     window[node.id] = setTimeout(function() {
-      node.className = "submenu-label submenu-showed";
+      console.log(self.mouseIsOn, node.id);
+      if (self.mouseIsOn === node.id) {
+        if (self.submenuProps.opened.indexOf(node.id) === -1) {
+          self.resetCondition(itemDepthLevel);
+          self.openSubmenuById(node.id, itemDepthLevel);
+        }
+      }
     }, delay);
-
-    node.addEventListener('mouseleave', function(event) {
-      clearTimeout(window[node.id]);
-    }, false)
+  } else {
+    window[node.id] = setTimeout(function() {
+      self.closeSubmenusFromLevel(itemDepthLevel);
+    }, delay);
   }
+}
+
+ContextMenu.prototype.redraw = function() {
+  this.resetCondition();
+  var openedSubmenus = this.submenuProps.opened;
+  openedSubmenus.forEach(function(id) {
+    var submenuLabel = document.getElementById(id);
+    submenuLabel.className = "submenu-label submenu-showed";
+  });
 }
 
 function generateId() {
