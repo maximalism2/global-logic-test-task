@@ -113,7 +113,6 @@ ContextMenu.prototype.createNode = function() {
       var textWrapper = document.createElement('span');
       textWrapper.className = 'label';
       textWrapper.innerHTML = item.title;
-      console.log(textWrapper);
       itemElement.appendChild(textWrapper);
       itemElement.className = 'context-menu-item';
       itemElement.id = generateId();
@@ -190,7 +189,6 @@ ContextMenu.prototype.show = function(event) {
   }
 
   var menuHeight = this.menuTemplate.items.length * 20;
-  console.log(menuHeight);
   if (event.clientY + menuHeight > viewport.height) {
     this.contextMenuNode.style.top = 'auto';
     this.contextMenuNode.style.bottom = '0px';
@@ -409,7 +407,7 @@ ContextMenu.prototype.redraw = function() {
       var onRight = Number(cmnStyles.right.slice(0, cmnStyles.right.length - 2)); // Get number of value, if it isn't auto
       var onLeft = Number(cmnStyles.left.slice(0, cmnStyles.left.length - 2));
       submenuContainer.style.zIndex = 100 * (index + 1);
-      console.log('sdfsdf', onLeft, onRight) // pulled right
+      // If menu is pulled right or near the right border of viewport
       if (isNaN(onLeft) || (onLeft + 200 * (index + 2) > document.body.clientWidth)) {
         submenuContainer.style.left = '-100%';
         submenuContainer.style.right = 'auto';
