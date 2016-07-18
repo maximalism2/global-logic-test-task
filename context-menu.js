@@ -10,7 +10,7 @@ function ContextMenu() {
   this.contextMenuNode = null; // Created element node with context menu
   this.overlayNode = null; // Overlay element to cover whole viewport
 
-  this.transitoinDelay = 300; // Delay before menu will be redrawed
+  this.transitoinDelay = 500; // Delay before menu will be redrawed
 }
 
 // Setting context menu config
@@ -36,8 +36,6 @@ ContextMenu.prototype.resetCondition = function(fromLevel) {
   if (fromLevel === undefined) {
     fromLevel = 0;
   }
-
-  console.log('resetCondition called with index', fromLevel);
 
   restoreDefaultClassNames(this.contextMenuNode.children, fromLevel, 0);
 
@@ -157,6 +155,7 @@ ContextMenu.prototype.createNode = function() {
 ContextMenu.prototype.hide = function(target) {
   document.body.removeChild(document.getElementById('contextMenu'));
   document.body.removeChild(document.getElementById('contextMenuOverlay'));
+  console.log(this);
   window.removeEventListener('keydown', this.keyDownHandler);
 }
 
@@ -177,12 +176,11 @@ ContextMenu.prototype.show = function(event) {
 
   this.contextMenuNode.style.top = event.y + 'px';
   this.contextMenuNode.style.left = event.x + 'px';
+  this.keyDownHandler = this.keyDownHandler.bind(this);
 
   document.body.appendChild(this.overlayNode);
   document.body.appendChild(this.contextMenuNode);
-  window.addEventListener('keydown', function(event) {
-    self.keyDownHandler.call(self, event);
-  }, false);
+  window.addEventListener('keydown', this.keyDownHandler, false);
 }
 
 ContextMenu.prototype.openSubmenuById = function(id, depthLevel) {
@@ -206,14 +204,22 @@ ContextMenu.prototype.keyDownHandler = function(event) {
       break;
     }
     case 40: { // Down arrow
-      this.state.active;
-      console.log(this.contextMenuNode.children);
-      [].forEach.call(this.contextMenuNode.children, function(item) {
-        console.log(item.className);
-      });
+      // this.state.active;
+      if (!this.state.active.length) {
+        var firstItemOfMenu = document.querySelector('.context-menu .context-menu-item');
+        this.state.active.push(firstItemOfMenu.id);
+      }
+      console.log(this.state.active);
+      // [].forEach.call(this.contextMenuNode.children, function(item) {
+      //   console.log(item.className);
+      // });
       break;
     }
   }
+}
+
+ContextMenu.prototype.changeActive = function() {
+
 }
 
 ContextMenu.prototype.closeSubmenusFromLevel = function(level) {
@@ -229,11 +235,9 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
   var delay = this.transitoinDelay;
   
   this.mouseIsOn = node.id;
-  console.log('currentOpenedSubmenus', node.id);
 
   if (!item.disabled && item.submenu && item.submenu.length) {
     window[node.id] = setTimeout(function() {
-      console.log(self.mouseIsOn, node.id);
       if (self.mouseIsOn === node.id) {
         if (self.state.opened.indexOf(node.id) === -1) {
           self.resetCondition(itemDepthLevel);
@@ -253,7 +257,9 @@ ContextMenu.prototype.redraw = function() {
   var openedSubmenus = this.state.opened;
   openedSubmenus.forEach(function(id) {
     var submenuLabel = document.getElementById(id);
-    submenuLabel.className = "submenu-label submenu-showed";
+    if (submenuLabel) {
+      submenuLabel.className = "submenu-label submenu-showed";
+    }
   });
 }
 
