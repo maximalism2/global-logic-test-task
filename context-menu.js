@@ -14,21 +14,27 @@ function ContextMenu() {
 }
 
 // Setting context menu config
-ContextMenu.prototype.init = function() {
+ContextMenu.prototype.init = function(param) {
   var self = this;
-  var requestForConfig = new XMLHttpRequest();
-  requestForConfig.open('GET', 'config.json', true);
-  requestForConfig.onreadystatechange = function() {
-    if (requestForConfig.readyState == 4) {
-      if(requestForConfig.status == 200) {
-        self.menuTemplate = JSON.parse(requestForConfig.responseText);
+  if (typeof param === 'string') {
+    var requestForConfig = new XMLHttpRequest();
+    requestForConfig.open('GET', param, true);
+    requestForConfig.onreadystatechange = function() {
+      if (requestForConfig.readyState == 4) {
+        if(requestForConfig.status == 200) {
+          self.menuTemplate = JSON.parse(requestForConfig.responseText);
 
-        menu.setTarget();
-        menu.createNode();
+          menu.setTarget();
+          menu.createNode();
+        }
       }
-    }
-  };
-  requestForConfig.send(null);
+    };
+    requestForConfig.send(null);
+  } else if (typeof param === 'object' && !Array.isArray(param)) {
+    this.menuTemplate = JSON.parse(JSON.stringify(param));
+  } else {
+    throw new Error('Menu can be configured by JSON object, which can be provided by url or plain object');
+  }
 }
 
 // To hide all submenu which is showed
@@ -428,7 +434,7 @@ var menu = null;
 window.addEventListener('load', function() {
   menu = new ContextMenu();
 
-  menu.init();
+  menu.init('config.json');
 });
 
 
