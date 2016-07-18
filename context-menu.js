@@ -82,15 +82,13 @@ ContextMenu.prototype.createNode = function() {
   overlay.className = "context-menu-overlay";
   overlay.id = "contextMenuOverlay";
 
-  overlay.addEventListener('click', function(event) {
-    hide.call(self, hide);
-    self.resetCondition.call(self);
+  overlay.addEventListener('click', function() {
+    hide.call(self);
   }, false);
 
   overlay.addEventListener('contextmenu', function(event) {
     event.preventDefault();
-    self.resetCondition.call(self);
-    hide.call(self, hide);
+    hide.call(self);
   }, false)
 
   this.overlayNode = overlay;
@@ -156,6 +154,7 @@ ContextMenu.prototype.hide = function(target) {
   document.body.removeChild(document.getElementById('contextMenu'));
   document.body.removeChild(document.getElementById('contextMenuOverlay'));
   this.clearActiveItems();
+  this.resetCondition();
   window.removeEventListener('keydown', this.keyDownHandler);
 }
 
@@ -200,6 +199,16 @@ ContextMenu.prototype.keyDownHandler = function(event) {
       break;
     }
     case 37: { // Left arrow
+      if (this.state.active.length > 1) {
+        var active = this.state.active;
+        var item = active[active.length - 1];
+        var currentActiveClassName = item.className;
+        var activeWordIndex = currentActiveClassName.indexOf(' active');
+        var firstChunkOfClassName = currentActiveClassName.slice(0, activeWordIndex);
+        var secondChunkOfClassName = currentActiveClassName.slice((activeWordIndex + ' active'.length));
+        item.className = firstChunkOfClassName + secondChunkOfClassName;
+        this.state.active = active.slice(0, active.length - 1);
+      }
       break;
     }
     case 38: { // Up arrow
@@ -228,6 +237,27 @@ ContextMenu.prototype.keyDownHandler = function(event) {
       break;
     }
     case 39: { // Right arrow
+      if (this.state.active.length) {
+        var active = this.state.active;
+        var self = this;
+        var currentActiveNode = active[active.length - 1];
+        [].forEach.call(currentActiveNode.children, function(child) {
+          if (child.className.indexOf('submenu-label') !== -1) {
+            self.openSubmenuById(child.id, active.length - 1);
+          } else if (child.className === 'submenu') {
+            var previousNumberOfActive = active.length;
+            [].forEach.call(child.children, function(child) {
+              if (child.className.indexOf('context-menu-item') !== -1) {
+                var newNumberOfActive = self.state.active.length;
+                if (previousNumberOfActive === newNumberOfActive) {
+                  child.className += ' active';
+                  self.state.active.push(child);
+                }
+              }
+            });
+          }
+        });
+      }
       break;
     }
     case 40: { // Down arrow

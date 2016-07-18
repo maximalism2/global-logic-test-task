@@ -17,6 +17,7 @@
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
+  color: #444;
 }
 
 .submenu{
@@ -27,11 +28,7 @@
   display: inline-block;
 }
 
-.context-menu-item:hover {
-  background: #ddd;
-}
-
-.context-menu-item.is-disabled {
+.context-menu-item.is-disabled .label {
   color: #aaa;
   cursor: default;
 }
@@ -74,7 +71,9 @@
   box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
 }
 
-.active {
+.active::after,
+.active > .label,
+.active > .submenu-label .label {
   background: #00796b;
   color: white;
 }
