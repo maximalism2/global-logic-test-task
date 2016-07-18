@@ -1,6 +1,6 @@
 # GlobalLogic test tast for JS trainee.
 
-Demo: http://necinc.github.io/global-logick-test-task
+Demo: https://necinc.github.io/global-logic-test-task
 
 TODO:
 - [x] You can't use any libraries only pure JS
