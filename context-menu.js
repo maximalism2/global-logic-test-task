@@ -14,21 +14,27 @@ function ContextMenu() {
 }
 
 // Setting context menu config
-ContextMenu.prototype.init = function() {
+ContextMenu.prototype.init = function(param) {
   var self = this;
-  var requestForConfig = new XMLHttpRequest();
-  requestForConfig.open('GET', 'config.json', true);
-  requestForConfig.onreadystatechange = function() {
-    if (requestForConfig.readyState == 4) {
-      if(requestForConfig.status == 200) {
-        self.menuTemplate = JSON.parse(requestForConfig.responseText);
+  if (typeof param === 'string') {
+    var requestForConfig = new XMLHttpRequest();
+    requestForConfig.open('GET', param, true);
+    requestForConfig.onreadystatechange = function() {
+      if (requestForConfig.readyState == 4) {
+        if(requestForConfig.status == 200) {
+          self.menuTemplate = JSON.parse(requestForConfig.responseText);
 
-        menu.setTarget();
-        menu.createNode();
+          menu.setTarget();
+          menu.createNode();
+        }
       }
-    }
-  };
-  requestForConfig.send(null);
+    };
+    requestForConfig.send(null);
+  } else if (typeof param === 'object' && !Array.isArray(param)) {
+    this.menuTemplate = JSON.parse(JSON.stringify(param));
+  } else {
+    throw new Error('Menu can be configured by JSON object, which can be provided by url or plain object');
+  }
 }
 
 // To hide all submenu which is showed
@@ -113,7 +119,6 @@ ContextMenu.prototype.createNode = function() {
       var textWrapper = document.createElement('span');
       textWrapper.className = 'label';
       textWrapper.innerHTML = item.title;
-      console.log(textWrapper);
       itemElement.appendChild(textWrapper);
       itemElement.className = 'context-menu-item';
       itemElement.id = generateId();
@@ -190,7 +195,6 @@ ContextMenu.prototype.show = function(event) {
   }
 
   var menuHeight = this.menuTemplate.items.length * 20;
-  console.log(menuHeight);
   if (event.clientY + menuHeight > viewport.height) {
     this.contextMenuNode.style.top = 'auto';
     this.contextMenuNode.style.bottom = '0px';
@@ -409,7 +413,7 @@ ContextMenu.prototype.redraw = function() {
       var onRight = Number(cmnStyles.right.slice(0, cmnStyles.right.length - 2)); // Get number of value, if it isn't auto
       var onLeft = Number(cmnStyles.left.slice(0, cmnStyles.left.length - 2));
       submenuContainer.style.zIndex = 100 * (index + 1);
-      console.log('sdfsdf', onLeft, onRight) // pulled right
+      // If menu is pulled right or near the right border of viewport
       if (isNaN(onLeft) || (onLeft + 200 * (index + 2) > document.body.clientWidth)) {
         submenuContainer.style.left = '-100%';
         submenuContainer.style.right = 'auto';
@@ -430,7 +434,7 @@ var menu = null;
 window.addEventListener('load', function() {
   menu = new ContextMenu();
 
-  menu.init();
+  menu.init('config.json');
 });
 
 

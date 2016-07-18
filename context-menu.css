@@ -62,7 +62,6 @@
 }
 
 .context-menu-overlay {
-  background: rgba(50, 200, 100, .3);
   width: 100vw;
   height: 100vh;
   position: fixed;
