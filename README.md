@@ -14,5 +14,5 @@ TODO:
     - [x] may be a submenu
   - [x] if you click another place except menu it should close
   - [x] menu should appear near the cursor when left button clicked
-  - [ ] If the menu does not fit into the screen custom scroll should appear ( something like this  scrolling should happen when user click up/down arrow when up/down arrow clicked menu must scroll by 1 item
+  - [ ] If the menu does not fit into the screen custom scroll should appear ( something like this ![example of overflowed menu](http://i.imgur.com/j65YgMX.png)  scrolling should happen when user click up/down arrow when up/down arrow clicked menu must scroll by 1 item
   - [ ] If it's not possible to expand menu down and there is free space above It should expand up and vise versa
