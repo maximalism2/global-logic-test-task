@@ -3,7 +3,6 @@
   max-height: 500px;
   background: white;
   border-radius: 2px;
-  border: 1px solid #eee;
   box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
   position: fixed;
 }
@@ -73,4 +72,14 @@
   right: -100%;
   width: 200px;
   box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
+}
+
+.active {
+  background: #00796b;
+  color: white;
+}
+
+.is-disabled.active {
+  background: #80CBC4;
+  color: #eee;
 }

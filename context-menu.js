@@ -155,7 +155,7 @@ ContextMenu.prototype.createNode = function() {
 ContextMenu.prototype.hide = function(target) {
   document.body.removeChild(document.getElementById('contextMenu'));
   document.body.removeChild(document.getElementById('contextMenuOverlay'));
-  console.log(this);
+  this.clearActiveItems();
   window.removeEventListener('keydown', this.keyDownHandler);
 }
 
@@ -192,34 +192,86 @@ ContextMenu.prototype.openSubmenuById = function(id, depthLevel) {
 }
 
 ContextMenu.prototype.keyDownHandler = function(event) {
-  console.log(event.which);
   switch (event.which) {
+    case 27: { // Esc key
+      this.hide();
+    }
+    case 13: { // Enter key
+      break;
+    }
     case 37: { // Left arrow
       break;
     }
     case 38: { // Up arrow
+      if (this.state.active.length) {
+        var active = this.state.active;
+        var currentActiveNode = active[active.length - 1];
+        var arrayOfSiblings = [].slice.call(currentActiveNode.parentElement.children);
+        var currentActiveNodePosition = arrayOfSiblings.indexOf(currentActiveNode);
+
+        var currentActiveClassName = currentActiveNode.className;
+        var activeWordIndex = currentActiveClassName.indexOf(' active');
+        var firstChunkOfClassName = currentActiveClassName.slice(0, activeWordIndex);
+        var secondChunkOfClassName = currentActiveClassName.slice((activeWordIndex + ' active'.length));
+        currentActiveNode.className = firstChunkOfClassName + secondChunkOfClassName;
+
+        var newActiveElement = arrayOfSiblings[currentActiveNodePosition - 1];
+
+        if (currentActiveNodePosition - 1 < 0) {
+          newActiveElement = arrayOfSiblings[arrayOfSiblings.length - 1];
+        }
+
+        newActiveElement.className += ' active';
+
+        this.state.active[active.length - 1] = newActiveElement;
+      }
       break;
     }
     case 39: { // Right arrow
       break;
     }
     case 40: { // Down arrow
-      // this.state.active;
       if (!this.state.active.length) {
         var firstItemOfMenu = document.querySelector('.context-menu .context-menu-item');
-        this.state.active.push(firstItemOfMenu.id);
+        firstItemOfMenu.className += " active";
+        this.state.active.push(firstItemOfMenu);
+      } else {
+        var active = this.state.active;
+        var currentActiveNode = active[active.length - 1];
+        var arrayOfSiblings = [].slice.call(currentActiveNode.parentElement.children);
+        var currentActiveNodePosition = arrayOfSiblings.indexOf(currentActiveNode);
+
+        var currentActiveClassName = currentActiveNode.className;
+        var activeWordIndex = currentActiveClassName.indexOf(' active');
+        var firstChunkOfClassName = currentActiveClassName.slice(0, activeWordIndex);
+        var secondChunkOfClassName = currentActiveClassName.slice((activeWordIndex + ' active'.length));
+        currentActiveNode.className = firstChunkOfClassName + secondChunkOfClassName;
+
+        var newActiveElement = arrayOfSiblings[currentActiveNodePosition + 1];
+
+        if (currentActiveNodePosition + 1 === arrayOfSiblings.length) {
+          newActiveElement = arrayOfSiblings[0];
+        }
+
+        newActiveElement.className += ' active';
+
+        this.state.active[active.length - 1] = newActiveElement;
       }
-      console.log(this.state.active);
-      // [].forEach.call(this.contextMenuNode.children, function(item) {
-      //   console.log(item.className);
-      // });
       break;
     }
   }
 }
 
-ContextMenu.prototype.changeActive = function() {
-
+ContextMenu.prototype.clearActiveItems = function() {
+  var active = this.state.active;
+  active.forEach(function(item) {
+    var currentActiveClassName = item.className;
+    var activeWordIndex = currentActiveClassName.indexOf(' active');
+    var firstChunkOfClassName = currentActiveClassName.slice(0, activeWordIndex);
+    var secondChunkOfClassName = currentActiveClassName.slice((activeWordIndex + ' active'.length));
+    item.className = firstChunkOfClassName + secondChunkOfClassName;
+  });
+  this.state.active = [];
 }
 
 ContextMenu.prototype.closeSubmenusFromLevel = function(level) {
@@ -246,7 +298,7 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
       }
     }, delay);
   } else {
-    window[node.id] = setTimeout(function() {
+    setTimeout(function() {
       self.closeSubmenusFromLevel(itemDepthLevel);
     }, delay);
   }
