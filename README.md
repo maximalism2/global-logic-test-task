@@ -23,4 +23,8 @@ TODO:
 ```
 $ mkdir mvyznyuk
 $ git clone https://github.com/necinc/global-logic-test-task.git mvyznyuk
+$ cd mvyznyuk
+$ npm i && npm start
 ```
+
+Then open [http://localhost:8080](http://localhost:8080)
