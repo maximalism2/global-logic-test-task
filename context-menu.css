@@ -3,7 +3,7 @@
   max-height: 500px;
   background: white;
   border-radius: 2px;
-  box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
+  box-shadow: 0 2px 8px 0px rgba(0,0,0,.3);
   position: fixed;
 }
 
@@ -20,8 +20,16 @@
   color: #444;
 }
 
+.context-menu-item:hover::after,
+.context-menu-item:hover > .label,
+.context-menu-item:hover > .submenu-label .label{
+  background: #2196f3;
+  color: white;
+}
+
 .submenu{
   display: none;
+  background: white;
 }
 
 .submenu-label.submenu-showed + .submenu {
@@ -71,14 +79,14 @@
   box-shadow: 0 5px 8px -2px rgba(0,0,0,.3);
 }
 
-.active::after,
-.active > .label,
-.active > .submenu-label .label {
+.context-menu-item.active::after,
+.context-menu-item.active > .label,
+.context-menu-item.active > .submenu-label .label {
   background: #00796b;
   color: white;
 }
 
-.is-disabled.active {
+.is-disabled.active .label {
   background: #80CBC4;
   color: #eee;
 }

@@ -112,7 +112,8 @@ ContextMenu.prototype.createNode = function() {
       var itemElement = document.createElement('div');
       var textWrapper = document.createElement('span');
       textWrapper.className = 'label';
-      textWrapper.innerText = item.title;
+      textWrapper.innerHTML = item.title;
+      console.log(textWrapper);
       itemElement.appendChild(textWrapper);
       itemElement.className = 'context-menu-item';
       itemElement.id = generateId();
@@ -122,6 +123,7 @@ ContextMenu.prototype.createNode = function() {
       }, false);
 
       if (!item.disabled && !item.submenu) {
+        itemElement.setAttribute('data-click-listener', item.onClick);
         itemElement.addEventListener('click', function(event) {
           self.hide();
           self.resetCondition();
@@ -153,6 +155,7 @@ ContextMenu.prototype.createNode = function() {
 ContextMenu.prototype.hide = function(target) {
   document.body.removeChild(document.getElementById('contextMenu'));
   document.body.removeChild(document.getElementById('contextMenuOverlay'));
+  document.body.style.overflow = 'auto';
   this.clearActiveItems();
   this.resetCondition();
   window.removeEventListener('keydown', this.keyDownHandler);
@@ -161,11 +164,16 @@ ContextMenu.prototype.hide = function(target) {
 ContextMenu.prototype.show = function(event) {
   event.preventDefault();
   var self = this;
+  document.body.style.overflow = 'hidden';
+  var viewport = {
+    width: document.body.clientWidth,
+    height: document.body.clientHeight
+  }
 
   console.table({
     userEvent: {
-      x: event.x,
-      y: event.y
+      x: event.clientX,
+      y: event.clientY
     },
     viewport: {
       x: document.body.clientWidth,
@@ -173,8 +181,24 @@ ContextMenu.prototype.show = function(event) {
     }
   });
 
-  this.contextMenuNode.style.top = event.y + 'px';
-  this.contextMenuNode.style.left = event.x + 'px';
+  if (event.clientX + 200 > viewport.width) {
+    this.contextMenuNode.style.left = 'auto';
+    this.contextMenuNode.style.right = '0px';
+  } else {
+    this.contextMenuNode.style.left = event.clientX + 'px';
+    this.contextMenuNode.style.right = 'auto';
+  }
+
+  var menuHeight = this.menuTemplate.items.length * 20;
+  console.log(menuHeight);
+  if (event.clientY + menuHeight > viewport.height) {
+    this.contextMenuNode.style.top = 'auto';
+    this.contextMenuNode.style.bottom = '0px';
+  } else {
+    this.contextMenuNode.style.top = event.clientY + 'px';
+    this.contextMenuNode.style.bottom = 'auto';
+  }
+
   this.keyDownHandler = this.keyDownHandler.bind(this);
 
   document.body.appendChild(this.overlayNode);
@@ -196,6 +220,35 @@ ContextMenu.prototype.keyDownHandler = function(event) {
       this.hide();
     }
     case 13: { // Enter key
+      if (this.state.active.length) {
+        var active = this.state.active;
+        var self = this;
+        var currentActiveNode = active[active.length - 1];
+        if (currentActiveNode.className.indexOf('has-sub-items') !== -1) {
+          [].forEach.call(currentActiveNode.children, function(child) {
+            if (child.className.indexOf('submenu-label') !== -1) {
+              self.openSubmenuById(child.id, active.length - 1);
+            } else if (child.className === 'submenu') {
+              var previousNumberOfActive = active.length;
+              [].forEach.call(child.children, function(child) {
+                if (child.className.indexOf('context-menu-item') !== -1) {
+                  var newNumberOfActive = self.state.active.length;
+                  if (previousNumberOfActive === newNumberOfActive) {
+                    child.className += ' active';
+                    self.state.active.push(child);
+                  }
+                }
+              });
+            }
+          });
+        } else {
+          if (currentActiveNode.className.indexOf('is-disabled') === -1) {
+            var onClickListener = currentActiveNode.getAttribute('data-click-listener');
+            this.hide();
+            window[onClickListener](event);
+          }
+        }
+      };
       break;
     }
     case 37: { // Left arrow
@@ -207,6 +260,10 @@ ContextMenu.prototype.keyDownHandler = function(event) {
         var firstChunkOfClassName = currentActiveClassName.slice(0, activeWordIndex);
         var secondChunkOfClassName = currentActiveClassName.slice((activeWordIndex + ' active'.length));
         item.className = firstChunkOfClassName + secondChunkOfClassName;
+        if (this.state.opened.length > 0) {
+          this.state.opened = this.state.opened.slice(0, this.state.opened.length - 1);
+          this.redraw();
+        }
         this.state.active = active.slice(0, active.length - 1);
       }
       break;
@@ -318,6 +375,10 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
   
   this.mouseIsOn = node.id;
 
+  if (this.state.active.length) {
+    this.clearActiveItems();
+  }
+
   if (!item.disabled && item.submenu && item.submenu.length) {
     window[node.id] = setTimeout(function() {
       if (self.mouseIsOn === node.id) {
@@ -334,13 +395,28 @@ ContextMenu.prototype.mouseEnterHandler = function(node, item, itemDepthLevel) {
   }
 }
 
+
 ContextMenu.prototype.redraw = function() {
   this.resetCondition();
   var openedSubmenus = this.state.opened;
-  openedSubmenus.forEach(function(id) {
+  var contextMenuNode = this.contextMenuNode;
+  openedSubmenus.forEach(function(id, index) {
     var submenuLabel = document.getElementById(id);
     if (submenuLabel) {
       submenuLabel.className = "submenu-label submenu-showed";
+      var submenuContainer = submenuLabel.parentElement.children[1] // <- div.submenu
+      var cmnStyles = contextMenuNode.style; // Current context node styles in short form;
+      var onRight = Number(cmnStyles.right.slice(0, cmnStyles.right.length - 2)); // Get number of value, if it isn't auto
+      var onLeft = Number(cmnStyles.left.slice(0, cmnStyles.left.length - 2));
+      submenuContainer.style.zIndex = 100 * (index + 1);
+      console.log('sdfsdf', onLeft, onRight) // pulled right
+      if (isNaN(onLeft) || (onLeft + 200 * (index + 2) > document.body.clientWidth)) {
+        submenuContainer.style.left = '-100%';
+        submenuContainer.style.right = 'auto';
+      } else {
+        submenuContainer.style.right = '-100%';
+        submenuContainer.style.left = 'auto';
+      }
     }
   });
 }
@@ -350,13 +426,15 @@ function generateId() {
   return 'cxmi_' + Math.round(Math.random() * 9000 + 1000);
 }
 
-function clickHandler(event) {
-  console.log('clicked', event);
-}
-
 var menu = null;
 window.addEventListener('load', function() {
   menu = new ContextMenu();
 
   menu.init();
 });
+
+
+function clickHandler(event) {
+  alert('Action listener called');
+  console.log(event)
+}
